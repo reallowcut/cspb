@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<table class="table mt-5 table-bordered table-striped tabel-hover">
+    <thead class="table-dark">
+    <tr>
+        <th>ID</th>
+        <th>Illuminations level</th>
+        <th>Created at</th>
+        <th></th>
+    </tr>
+    <tbody>
+    {% for illumination in illuminations %}
+    <tr>
+        <td>{{ illumination.id }}</td>
+        <td>{{ illumination.level }}</td>
+        <td>{{ illumination.created_at }}</td>
+    </tr>
+    {% endfor %}
+
+    </tbody>
+    </thead>
+</table>
+{% endblock %}
