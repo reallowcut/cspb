@@ -7,4 +7,4 @@ class IlluminationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Illumination
         fields = ['id', 'level', 'created_at', 'illumination_class']
-        read_only_fields = ['id', 'created_at']
+        read_only_fields = ['id']

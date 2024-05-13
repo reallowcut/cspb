@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.utils import timezone
 from rest_framework import status
@@ -11,20 +12,26 @@ from rest_framework.views import APIView
 from .serializers import IlluminationSerializer
 
 
+# def AddTestInfo(request):
+#     for i in range(1, 60):
+#         start_date = timezone.now() - timedelta(days=i)
+#         Illumination.objects.create(level=i, illumination_class=4, created_at=start_date)
+#     return HttpResponseRedirect(request.META['HTTP_REFERER'])
+
+
 def index(request):
     illuminations = Illumination.objects.all()
-    context = {'illuminations': illuminations}
+    illuminations_reversed = list(reversed(illuminations))
+    context = {'illuminations': illuminations_reversed}
     return render(request, 'index.html', context)
 
 
 class GetIlluminationInfoView(APIView):
     def get(self, request):
-        # Получаем набор всех записей из таблицы Capital
         queryset = Illumination.objects.all()
-        # Сериализуем извлечённый набор записей
         serializer_for_queryset = IlluminationSerializer(
-            instance=queryset,  # Передаём набор записей
-            many=True  # Указываем, что на вход подаётся именно набор записей
+            instance=queryset,
+            many=True
         )
         return Response(serializer_for_queryset.data)
 
@@ -56,7 +63,31 @@ class GetInfoForWeekView(APIView):
 
         serializer_for_queryset = IlluminationSerializer(
             instance=queryset,
-            many=True 
+            many=True
+        )
+        return Response(serializer_for_queryset.data)
+
+
+class GetInfoForDayView(APIView):
+    def get(self, request):
+        start_date = timezone.now() - timedelta(days=1)
+        queryset = Illumination.objects.filter(created_at__gte=start_date)
+
+        serializer_for_queryset = IlluminationSerializer(
+            instance=queryset,
+            many=True
+        )
+        return Response(serializer_for_queryset.data)
+
+
+class GetInfoForMonthView(APIView):
+    def get(self, request):
+        start_date = timezone.now() - timedelta(days=30)
+        queryset = Illumination.objects.filter(created_at__gte=start_date)
+
+        serializer_for_queryset = IlluminationSerializer(
+            instance=queryset,
+            many=True
         )
         return Response(serializer_for_queryset.data)
 
@@ -66,6 +97,7 @@ class PostInfoView(APIView):
         print(request.data)
         new_data = request.data
         new_data['level'] = request.data['level']
+        new_data['created_at'] = timezone.now()
 
         if request.data['level'] >= 580:
             new_data['illumination_class'] = 1
@@ -76,7 +108,10 @@ class PostInfoView(APIView):
         elif request.data['level'] < 150:
             new_data['illumination_class'] = 4
 
+        print(new_data)
+
         serializer = IlluminationSerializer(data=new_data)
+        print(serializer)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
