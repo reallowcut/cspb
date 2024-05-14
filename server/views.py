@@ -96,7 +96,7 @@ class PostInfoView(APIView):
     def post(self, request):
         print(request.data)
         new_data = request.data
-        new_data['level'] = request.data['level']
+        new_data['level'] = int(request.data['level'])
         new_data['created_at'] = timezone.now()
 
         if request.data['level'] >= 580:
