@@ -12,13 +12,6 @@ from rest_framework.views import APIView
 from .serializers import IlluminationSerializer
 
 
-# def AddTestInfo(request):
-#     for i in range(1, 60):
-#         start_date = timezone.now() - timedelta(days=i)
-#         Illumination.objects.create(level=i, illumination_class=4, created_at=start_date)
-#     return HttpResponseRedirect(request.META['HTTP_REFERER'])
-
-
 def index(request):
     illuminations = Illumination.objects.all()
     illuminations_reversed = list(reversed(illuminations))
@@ -97,7 +90,9 @@ class PostInfoView(APIView):
         print(request.data)
         new_data = request.data
         new_data['level'] = int(request.data['level'])
-        new_data['created_at'] = timezone.now()
+        if new_data['level'] < 10:
+            new_data['level'] = 10
+        new_data['created_at'] = timezone.now() + timedelta(hours=3)
 
         if request.data['level'] >= 580:
             new_data['illumination_class'] = 1
